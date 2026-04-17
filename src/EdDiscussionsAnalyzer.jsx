@@ -742,12 +742,12 @@ function renderMarkdown(text) {
 }
 
 // ─── API call via Anthropic ─────────────────────────────────────────────────
-async function callOpenAI(systemPrompt, userPrompt) {
-  const response = await fetch("/api/openai/v1/chat/completions", {
+async function callOpenAI(systemPrompt, userPrompt, apiKey) {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+      "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model: "gpt-4o-mini",
@@ -968,7 +968,7 @@ Include:
 
 Format professionally for an instructor to use directly.`;
 
-      const result = await callOpenAI(systemPrompt, userPrompt);
+      const result = await callOpenAI(systemPrompt, userPrompt, session.openaiKey);
       setSummary(result);
       contextRef.current = result;
     } catch (e) {
@@ -1004,7 +1004,7 @@ Include:
 
 Provide actionable insights.`;
 
-      const result = await callOpenAI(systemPrompt, userPrompt);
+      const result = await callOpenAI(systemPrompt, userPrompt, session.openaiKey);
       setToneAnalysis(result);
       if (!contextRef.current) contextRef.current = result;
     } catch (e) {
@@ -1026,7 +1026,7 @@ Provide actionable insights.`;
         "You are an educational assistant helping instructors understand their discussion content. Answer questions accurately based on the provided context.";
       const userPrompt = `Based on this discussion context:\n\n${context}\n\nQuestion: ${q}\n\nProvide a thorough answer with specific references when possible.`;
 
-      const result = await callOpenAI(systemPrompt, userPrompt);
+      const result = await callOpenAI(systemPrompt, userPrompt, session.openaiKey);
       setChatHistory((h) => [
         { question: q, answer: result, ts: new Date().toLocaleTimeString() },
         ...h,
