@@ -37,7 +37,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         response = client.chat.completions.create(
             model=os.environ["AZURE_OPENAI_DEPLOYMENT"],
-            max_tokens=1000,
+            max_completion_tokens=1000,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
