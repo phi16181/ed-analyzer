@@ -741,33 +741,23 @@ function renderMarkdown(text) {
   });
 }
 
-// ─── API call via Anthropic ─────────────────────────────────────────────────
-async function callOpenAI(systemPrompt, userPrompt, apiKey) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+// ─── API call ─────────────────────────────────────────────────
+async function callOpenAI(systemPrompt, userPrompt) {
+  const response = await fetch("/api/chat", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      max_tokens: 1000,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ systemPrompt, userPrompt }),
   });
   const data = await response.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.choices?.[0]?.message?.content ?? "";
+  if (data.error) throw new Error(data.error);
+  return data.result ?? "";
 }
 
 // ─── Landing Page ───────────────────────────────────────────────────────────
 function LandingPage({ onSubmit }) {
   const [form, setForm] = useState({
     name: "", role: "Instructor", institution: "",
-    edToken: "", openaiKey: "", courseId: "",
+    edToken: "", courseId: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -968,7 +958,7 @@ Include:
 
 Format professionally for an instructor to use directly.`;
 
-      const result = await callOpenAI(systemPrompt, userPrompt, session.openaiKey);
+      const result = await callOpenAI(systemPrompt, userPrompt);
       setSummary(result);
       contextRef.current = result;
     } catch (e) {
