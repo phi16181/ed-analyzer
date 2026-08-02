@@ -948,8 +948,6 @@ function AnalyzerApp({ session, onLogout }) {
 
       const userPrompt = `Please create a comprehensive summary of classroom discussion activity from ${startDate} to ${endDate} for course ID ${session.courseId}.
 
-This is a demonstration/simulation — generate a realistic example summary as if you had access to ${count} discussion threads from an active undergraduate course.
-
 Include:
 1. **Overview**: Brief summary of discussion activity level and engagement
 2. **Key Topics**: Main themes and subjects discussed
@@ -981,7 +979,6 @@ Format professionally for an instructor to use directly.`;
 
       const userPrompt = `Please analyze the tone and emotional climate of classroom discussions from ${startDate} to ${endDate} for course ID ${session.courseId}.
 
-This is a demonstration/simulation — generate a realistic tone analysis as if you had access to ${count} discussion threads.
 
 Include:
 1. **Overall Tone**: General emotional climate
