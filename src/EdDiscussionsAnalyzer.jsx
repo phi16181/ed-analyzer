@@ -314,7 +314,7 @@ const css = `
     border-bottom: 1px solid rgba(245,168,0,0.2);
   }
 
-  .sidebar-brand .bee { font-size: 1.6rem; margin-bottom: 0.1rem; }
+  .sidebar-brand .bee { font-size: 3.0rem; margin-bottom: 0.9rem; }
 
   .sidebar-brand-text {
     font-family: 'Bebas Neue', sans-serif;
@@ -326,10 +326,10 @@ const css = `
 
   .sidebar-brand-sub {
     font-family: 'DM Mono', monospace;
-    font-size: 8px;
+    font-size: 15px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: rgba(245,168,0,0.5);
+    color: #f9f6ee;
     margin-top: 0.2rem;
   }
 
@@ -819,7 +819,7 @@ function LandingPage({ onSubmit }) {
           <em>at a glance.</em>
         </h1>
         <p className="hero-desc">
-          Connect your Ed Discussion board and let AI surface what matters —
+          Connect your Ed Discussion board and let AI surface what matters:
           summaries, tone shifts, and instant answers about your course activity.
         </p>
         <ul className="feature-list">
@@ -839,8 +839,8 @@ function LandingPage({ onSubmit }) {
         <div className="form-card">
           <h2 className="form-card-title">Get started</h2>
           <p className="form-card-sub">
-            Enter your credentials below — they're held only in this browser
-            session and never sent to any server beyond Ed and OpenAI.
+            Enter your credentials below; they're held only in this browser
+            session.
           </p>
 
           {error && <div className="alert alert-error">⚠ {error}</div>}
