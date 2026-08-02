@@ -854,7 +854,7 @@ function LandingPage({ onSubmit }) {
               Get yours at <a href="https://edstem.org/us/settings/api-tokens" target="_blank" rel="noreferrer">edstem.org › Settings › API Tokens</a>
             </p>
           </div>
-          /* 
+          {/* 
           <div className="field">
             <label>OpenAI API Key <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional if pre-configured)</span></label>
             <input
@@ -864,7 +864,7 @@ function LandingPage({ onSubmit }) {
               onChange={set("openaiKey")}
             />
           </div>
-          */
+          */}
 
           <div className="divider"><span>Course setup</span></div>
 
