@@ -766,28 +766,23 @@ function renderMarkdown(text) {
   });
 }
 
-// ─── API call via Anthropic ─────────────────────────────────────────────────
-async function callClaude(systemPrompt, userPrompt) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+// ─── API call via Azure Function → Azure OpenAI ──────────────────────────────
+async function callOpenAI(systemPrompt, userPrompt) {
+  const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
-    }),
+    body: JSON.stringify({ systemPrompt, userPrompt }),
   });
   const data = await response.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.content?.[0]?.text ?? "";
+  if (data.error) throw new Error(data.error);
+  return data.result ?? "";
 }
 
 // ─── Landing Page ───────────────────────────────────────────────────────────
 function LandingPage({ onSubmit }) {
   const [form, setForm] = useState({
     name: "", role: "Instructor", institution: "",
-    edToken: "", openaiKey: "", courseId: "",
+    edToken: "", courseId: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -884,17 +879,7 @@ function LandingPage({ onSubmit }) {
               Get yours at <a href="https://edstem.org/us/settings/api-tokens" target="_blank" rel="noreferrer">edstem.org › Settings › API Tokens</a>
             </p>
           </div>
-{/*
-          <div className="field">
-            <label>OpenAI API Key <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional if pre-configured)</span></label>
-            <input
-              type="password"
-              placeholder="sk-…"
-              value={form.openaiKey}
-              onChange={set("openaiKey")}
-            />
-          </div>
-*/}
+
           <div className="divider"><span>Course setup</span></div>
 
           <div className="field">
@@ -987,7 +972,7 @@ Include:
 
 Format professionally for an instructor to use directly.`;
 
-      const result = await callClaude(systemPrompt, userPrompt);
+      const result = await callOpenAI(systemPrompt, userPrompt);
       setSummary(result);
       contextRef.current = result;
     } catch (e) {
@@ -1022,7 +1007,7 @@ Include:
 
 Provide actionable insights.`;
 
-      const result = await callClaude(systemPrompt, userPrompt);
+      const result = await callOpenAI(systemPrompt, userPrompt);
       setToneAnalysis(result);
       if (!contextRef.current) contextRef.current = result;
     } catch (e) {
@@ -1044,7 +1029,7 @@ Provide actionable insights.`;
         "You are an educational assistant helping instructors understand their discussion content. Answer questions accurately based on the provided context.";
       const userPrompt = `Based on this discussion context:\n\n${context}\n\nQuestion: ${q}\n\nProvide a thorough answer with specific references when possible.`;
 
-      const result = await callClaude(systemPrompt, userPrompt);
+      const result = await callOpenAI(systemPrompt, userPrompt);
       setChatHistory((h) => [
         { question: q, answer: result, ts: new Date().toLocaleTimeString() },
         ...h,
