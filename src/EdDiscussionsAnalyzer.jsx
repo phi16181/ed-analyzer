@@ -1118,7 +1118,7 @@ function AnalyzerApp({ session, onLogout }) {
         {/* Action buttons */}
         <div className="action-row">
           <button
-            className="action-btn primary-action"
+            className={`action-btn${summary || loadingSummary ? " primary-action" : ""}`}
             onClick={handleGenerateSummary}
             disabled={loadingSummary || loadingTone}
           >
@@ -1129,7 +1129,7 @@ function AnalyzerApp({ session, onLogout }) {
             </span>
           </button>
           <button
-            className="action-btn"
+            className={`action-btn${toneAnalysis || loadingTone ? " primary-action" : ""}`}
             onClick={handleAnalyzeTone}
             disabled={loadingSummary || loadingTone}
           >
