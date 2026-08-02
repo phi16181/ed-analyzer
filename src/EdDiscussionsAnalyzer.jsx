@@ -791,7 +791,7 @@ function LandingPage({ onSubmit }) {
         <h1 className="hero-title">
           Understand your<br />
           classroom<br />
-          <em>at a glance.</em>
+          <em>epitome</em>
         </h1>
         <p className="hero-desc">
           Connect your Ed Discussion board and let AI surface what matters —
@@ -854,7 +854,7 @@ function LandingPage({ onSubmit }) {
               Get yours at <a href="https://edstem.org/us/settings/api-tokens" target="_blank" rel="noreferrer">edstem.org › Settings › API Tokens</a>
             </p>
           </div>
-
+          /* 
           <div className="field">
             <label>OpenAI API Key <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional if pre-configured)</span></label>
             <input
@@ -864,6 +864,7 @@ function LandingPage({ onSubmit }) {
               onChange={set("openaiKey")}
             />
           </div>
+          */
 
           <div className="divider"><span>Course setup</span></div>
 
@@ -1044,7 +1045,7 @@ Provide actionable insights.`;
         <div className="sidebar-brand">
           <span className="bee">🐝</span>
           <div>
-            <div className="sidebar-brand-text">Ed Analyzer</div>
+            <div className="sidebar-brand-text">epitome</div>
             <div className="sidebar-brand-sub">Discussions · AI</div>
           </div>
         </div>
