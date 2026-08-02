@@ -2,27 +2,29 @@ import { useState, useEffect, useRef } from "react";
 
 // ─── Design tokens ───────────────────────────────────────────────────────────
 const css = `
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --ink: #0d0d0f;
-    --paper: #f7f4ef;
-    --cream: #ede9e1;
-    --accent: #c8502a;
-    --accent-light: #f0ddd6;
-    --gold: #b89a5c;
-    --muted: #7a7570;
-    --border: #d4cfc8;
+    --ink: #0d0d0a;
+    --paper: #f9f6ee;
+    --cream: #f0ead8;
+    --accent: #f5a800;
+    --accent-dark: #c98a00;
+    --accent-light: #fff8e0;
+    --gold: #e8c542;
+    --amber: #f5a800;
+    --muted: #7a7668;
+    --border: #ddd8c4;
     --white: #ffffff;
     --success: #2d6a4f;
     --success-bg: #d8f3dc;
     --error: #9b2335;
     --error-bg: #fde8ec;
     --radius: 4px;
-    --shadow: 0 2px 16px rgba(13,13,15,0.08);
-    --shadow-lg: 0 8px 40px rgba(13,13,15,0.14);
+    --shadow: 0 2px 16px rgba(13,13,10,0.08);
+    --shadow-lg: 0 8px 40px rgba(13,13,10,0.14);
   }
 
   body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); }
@@ -56,36 +58,50 @@ const css = `
       45deg,
       transparent,
       transparent 60px,
-      rgba(200,80,42,0.04) 60px,
-      rgba(200,80,42,0.04) 61px
+      rgba(245,168,0,0.05) 60px,
+      rgba(245,168,0,0.05) 61px
     );
   }
 
   .landing-hero::after {
     content: '🐝';
     position: absolute;
-    font-size: 240px;
-    bottom: -40px;
-    right: -40px;
-    opacity: 0.06;
+    font-size: 300px;
+    bottom: -60px;
+    right: -50px;
+    opacity: 0.07;
     line-height: 1;
+    filter: grayscale(0.2);
+  }
+
+  .hero-wordmark {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4.5rem, 9vw, 7.5rem);
+    letter-spacing: 4px;
+    color: var(--accent);
+    line-height: 0.9;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0.3rem;
   }
 
   .hero-eyebrow {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 1.5rem;
+    color: rgba(245,168,0,0.6);
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
   }
 
   .hero-title {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(2.4rem, 4vw, 3.6rem);
-    font-weight: 900;
-    line-height: 1.1;
-    margin-bottom: 1.5rem;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
     position: relative;
     z-index: 1;
   }
@@ -93,6 +109,7 @@ const css = `
   .hero-title em {
     font-style: italic;
     color: var(--accent);
+    font-weight: 400;
   }
 
   .hero-desc {
@@ -144,9 +161,9 @@ const css = `
   }
 
   .form-card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 2px;
     margin-bottom: 0.5rem;
   }
 
@@ -183,7 +200,7 @@ const css = `
   }
 
   .field input:focus, .field select:focus {
-    border-color: var(--accent);
+    border-color: var(--accent-dark);
     box-shadow: 0 0 0 3px var(--accent-light);
   }
 
@@ -218,7 +235,7 @@ const css = `
     line-height: 1.5;
   }
 
-  .hint a { color: var(--accent); text-decoration: none; }
+  .hint a { color: var(--accent-dark); text-decoration: none; }
   .hint a:hover { text-decoration: underline; }
 
   /* ── Buttons ── */
@@ -240,13 +257,14 @@ const css = `
 
   .btn-primary {
     background: var(--accent);
-    color: var(--white);
+    color: var(--ink);
     width: 100%;
     padding: 0.85rem;
     font-size: 0.95rem;
+    font-weight: 700;
   }
 
-  .btn-primary:hover:not(:disabled) { background: #a8401e; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-dark); }
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .btn-secondary {
@@ -289,25 +307,30 @@ const css = `
 
   .sidebar-brand {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(245,168,0,0.2);
   }
 
-  .sidebar-brand .bee { font-size: 1.5rem; }
+  .sidebar-brand .bee { font-size: 1.6rem; margin-bottom: 0.1rem; }
 
   .sidebar-brand-text {
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.2;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+    line-height: 0.95;
   }
 
   .sidebar-brand-sub {
     font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1.5px;
+    font-size: 8px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--gold);
+    color: rgba(245,168,0,0.5);
+    margin-top: 0.2rem;
   }
 
   .sidebar-section { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -336,7 +359,7 @@ const css = `
   .sidebar .field input:focus,
   .sidebar .field select:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(200,80,42,0.2);
+    box-shadow: 0 0 0 3px rgba(245,168,0,0.2);
   }
 
   .sidebar .field input::placeholder { color: rgba(247,244,239,0.3); }
@@ -348,8 +371,8 @@ const css = `
     align-items: center;
     gap: 0.6rem;
     padding: 0.6rem 0.75rem;
-    background: rgba(200,80,42,0.15);
-    border: 1px solid rgba(200,80,42,0.3);
+    background: rgba(245,168,0,0.1);
+    border: 1px solid rgba(245,168,0,0.25);
     border-radius: var(--radius);
     font-size: 0.8rem;
   }
@@ -363,7 +386,7 @@ const css = `
     justify-content: center;
     font-size: 0.75rem;
     font-weight: 700;
-    color: white;
+    color: var(--ink);
     flex-shrink: 0;
   }
 
@@ -412,9 +435,10 @@ const css = `
   }
 
   .page-header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.4rem;
+    letter-spacing: 2px;
+    color: var(--ink);
     margin-bottom: 0.25rem;
   }
 
@@ -472,16 +496,17 @@ const css = `
     text-align: left;
   }
 
-  .action-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+  .action-btn:hover { border-color: var(--accent-dark); background: var(--accent-light); }
   .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .action-btn.primary-action {
     background: var(--accent);
     border-color: var(--accent);
-    color: var(--white);
+    color: var(--ink);
+    font-weight: 700;
   }
 
-  .action-btn.primary-action:hover:not(:disabled) { background: #a8401e; border-color: #a8401e; }
+  .action-btn.primary-action:hover:not(:disabled) { background: var(--accent-dark); border-color: var(--accent-dark); }
 
   .action-btn-icon { font-size: 1.3rem; }
 
@@ -520,9 +545,9 @@ const css = `
   }
 
   .result-header h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 1.5px;
   }
 
   .result-header p {
@@ -563,9 +588,9 @@ const css = `
   }
 
   .qa-header h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 1.5px;
   }
 
   .qa-header p { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
@@ -589,7 +614,7 @@ const css = `
   }
 
   .qa-input-row input:focus {
-    border-color: var(--accent);
+    border-color: var(--accent-dark);
     box-shadow: 0 0 0 3px var(--accent-light);
   }
 
@@ -672,7 +697,7 @@ const css = `
   .spinner {
     width: 18px; height: 18px;
     border: 2px solid var(--border);
-    border-top-color: var(--accent);
+    border-top-color: var(--amber);
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
     flex-shrink: 0;
@@ -686,18 +711,18 @@ const css = `
     align-items: center;
     gap: 0.4rem;
     padding: 0.45rem 0.9rem;
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--accent);
+    color: var(--ink);
     border-radius: var(--radius);
     font-size: 0.78rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     border: none;
     font-family: 'DM Sans', sans-serif;
     transition: background 0.15s;
   }
 
-  .download-btn:hover { background: #2a2a2e; }
+  .download-btn:hover { background: var(--accent-dark); }
 
   /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 6px; }
@@ -741,23 +766,28 @@ function renderMarkdown(text) {
   });
 }
 
-// ─── API call ─────────────────────────────────────────────────
-async function callOpenAI(systemPrompt, userPrompt) {
-  const response = await fetch("/api/chat", {
+// ─── API call via Anthropic ─────────────────────────────────────────────────
+async function callClaude(systemPrompt, userPrompt) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ systemPrompt, userPrompt }),
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }],
+    }),
   });
   const data = await response.json();
-  if (data.error) throw new Error(data.error);
-  return data.result ?? "";
+  if (data.error) throw new Error(data.error.message);
+  return data.content?.[0]?.text ?? "";
 }
 
 // ─── Landing Page ───────────────────────────────────────────────────────────
 function LandingPage({ onSubmit }) {
   const [form, setForm] = useState({
     name: "", role: "Instructor", institution: "",
-    edToken: "", courseId: "",
+    edToken: "", openaiKey: "", courseId: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -787,11 +817,11 @@ function LandingPage({ onSubmit }) {
     <div className="landing">
       {/* Hero */}
       <div className="landing-hero">
+        <div className="hero-wordmark">epitome</div>
         <div className="hero-eyebrow">Ed Discussions · AI Powered</div>
         <h1 className="hero-title">
-          Understand your<br />
-          classroom<br />
-          <em>epitome</em>
+          Understand your classroom<br />
+          <em>at a glance.</em>
         </h1>
         <p className="hero-desc">
           Connect your Ed Discussion board and let AI surface what matters —
@@ -854,7 +884,7 @@ function LandingPage({ onSubmit }) {
               Get yours at <a href="https://edstem.org/us/settings/api-tokens" target="_blank" rel="noreferrer">edstem.org › Settings › API Tokens</a>
             </p>
           </div>
-          {/* 
+{/*
           <div className="field">
             <label>OpenAI API Key <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional if pre-configured)</span></label>
             <input
@@ -864,8 +894,7 @@ function LandingPage({ onSubmit }) {
               onChange={set("openaiKey")}
             />
           </div>
-          */}
-
+*/}
           <div className="divider"><span>Course setup</span></div>
 
           <div className="field">
@@ -948,6 +977,7 @@ function AnalyzerApp({ session, onLogout }) {
 
       const userPrompt = `Please create a comprehensive summary of classroom discussion activity from ${startDate} to ${endDate} for course ID ${session.courseId}.
 
+
 Include:
 1. **Overview**: Brief summary of discussion activity level and engagement
 2. **Key Topics**: Main themes and subjects discussed
@@ -957,7 +987,7 @@ Include:
 
 Format professionally for an instructor to use directly.`;
 
-      const result = await callOpenAI(systemPrompt, userPrompt);
+      const result = await callClaude(systemPrompt, userPrompt);
       setSummary(result);
       contextRef.current = result;
     } catch (e) {
@@ -992,7 +1022,7 @@ Include:
 
 Provide actionable insights.`;
 
-      const result = await callOpenAI(systemPrompt, userPrompt, session.openaiKey);
+      const result = await callClaude(systemPrompt, userPrompt);
       setToneAnalysis(result);
       if (!contextRef.current) contextRef.current = result;
     } catch (e) {
@@ -1014,7 +1044,7 @@ Provide actionable insights.`;
         "You are an educational assistant helping instructors understand their discussion content. Answer questions accurately based on the provided context.";
       const userPrompt = `Based on this discussion context:\n\n${context}\n\nQuestion: ${q}\n\nProvide a thorough answer with specific references when possible.`;
 
-      const result = await callOpenAI(systemPrompt, userPrompt, session.openaiKey);
+      const result = await callClaude(systemPrompt, userPrompt);
       setChatHistory((h) => [
         { question: q, answer: result, ts: new Date().toLocaleTimeString() },
         ...h,
@@ -1041,10 +1071,8 @@ Provide actionable insights.`;
       <aside className="sidebar">
         <div className="sidebar-brand">
           <span className="bee">🐝</span>
-          <div>
-            <div className="sidebar-brand-text">epitome</div>
-            <div className="sidebar-brand-sub">Discussions · AI</div>
-          </div>
+          <div className="sidebar-brand-text">epitome</div>
+          <div className="sidebar-brand-sub">Ed Discussions · AI</div>
         </div>
 
         {/* User */}
@@ -1101,7 +1129,7 @@ Provide actionable insights.`;
       {/* Main */}
       <main className="main-content">
         <div className="page-header">
-          <h1>Enhanced Ed Discussions Analyzer</h1>
+          <h1>Discussion Analyzer</h1>
           <p>Advanced analysis with tone detection and interactive Q&A</p>
         </div>
 
