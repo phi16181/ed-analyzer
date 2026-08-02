@@ -767,15 +767,15 @@ function renderMarkdown(text) {
 }
 
 // ─── API call via Azure Function → Azure OpenAI ──────────────────────────────
-async function callOpenAI(systemPrompt, userPrompt) {
+async function callOpenAI(body) {
   const response = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ systemPrompt, userPrompt }),
+    body: JSON.stringify(body),
   });
   const data = await response.json();
   if (data.error) throw new Error(data.error);
-  return data.result ?? "";
+  return data;
 }
 
 // ─── Landing Page ───────────────────────────────────────────────────────────
@@ -954,34 +954,17 @@ function AnalyzerApp({ session, onLogout }) {
     setError("");
     setLoadingSummary(true);
     try {
-      const systemPrompt =
-        "You are an expert educational assistant helping instructors summarize Ed Discussion activity. Provide clear, professional summaries that highlight key insights and patterns.";
-      const userPrompt = `Please create a comprehensive summary of classroom discussion activity from ${startDate} to ${endDate}.
-  Include:
-  1. **Overview**: Brief summary of discussion activity level and engagement
-  2. **Key Topics**: Main themes and subjects discussed
-  3. **Student Questions**: Common questions or concerns raised
-  4. **Notable Discussions**: Particularly engaging or important conversations
-  5. **Participation Insights**: Observations about student participation patterns
-  Format professionally for an instructor to use directly.`;
-
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "summary",
-          systemPrompt,
-          userPrompt,
-          edToken: session.edToken,
-          courseId: session.courseId,
-          startDate,
-          endDate,
-        }),
+      const data = await callOpenAI({
+        mode: "summary",
+        systemPrompt: "You are an expert educational assistant helping instructors summarize Ed Discussion activity. Provide clear, professional summaries that highlight key insights and patterns.",
+        userPrompt: `Please create a comprehensive summary of classroom discussion activity from ${startDate} to ${endDate}. Include: 1. **Overview** 2. **Key Topics** 3. **Student Questions** 4. **Notable Discussions** 5. **Participation Insights**. Format professionally for an instructor.`,
+        edToken: session.edToken,
+        courseId: session.courseId,
+        startDate,
+        endDate,
       });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
       setSummary(data.result);
-      setThreadCount(data.threadCount);
+      if (data.threadCount) setThreadCount(data.threadCount);
       contextRef.current = data.result;
     } catch (e) {
       setError("Error generating summary: " + e.message);
@@ -994,35 +977,15 @@ function AnalyzerApp({ session, onLogout }) {
     setError("");
     setLoadingTone(true);
     try {
-      const systemPrompt =
-        "You are an expert in educational psychology and communication analysis. Analyze discussion tone with sensitivity to student emotional states and classroom dynamics.";
-      const userPrompt = `Please analyze the tone and emotional climate of classroom discussions from ${startDate} to ${endDate}.
-  Include:
-  1. **Overall Tone**: General emotional climate
-  2. **Engagement Level**: How actively engaged students appear to be
-  3. **Emotional Indicators**: Specific emotions detected
-  4. **Communication Style**: Formal vs informal, collaborative vs individual
-  5. **Stress Indicators**: Signs of academic pressure or difficulty
-  6. **Support Dynamics**: How students help each other
-  7. **Red Flags**: Any concerning patterns needing attention
-  8. **Recommendations**: Suggestions for improving discussion climate
-  Provide actionable insights.`;
-
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "tone",
-          systemPrompt,
-          userPrompt,
-          edToken: session.edToken,
-          courseId: session.courseId,
-          startDate,
-          endDate,
-        }),
+      const data = await callOpenAI({
+        mode: "tone",
+        systemPrompt: "You are an expert in educational psychology and communication analysis. Analyze discussion tone with sensitivity to student emotional states and classroom dynamics.",
+        userPrompt: `Please analyze the tone and emotional climate of classroom discussions from ${startDate} to ${endDate}. Include: 1. **Overall Tone** 2. **Engagement Level** 3. **Emotional Indicators** 4. **Communication Style** 5. **Stress Indicators** 6. **Support Dynamics** 7. **Red Flags** 8. **Recommendations**. Provide actionable insights.`,
+        edToken: session.edToken,
+        courseId: session.courseId,
+        startDate,
+        endDate,
       });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
       setToneAnalysis(data.result);
       if (data.threadCount) setThreadCount(data.threadCount);
       if (!contextRef.current) contextRef.current = data.result;
@@ -1041,17 +1004,11 @@ function AnalyzerApp({ session, onLogout }) {
     setQuestion("");
     try {
       const context = contextRef.current || "No prior analysis content loaded.";
-      const systemPrompt =
-        "You are an educational assistant helping instructors understand their discussion content. Answer questions accurately based on the provided context.";
-      const userPrompt = `Based on this discussion context:\n\n${context}\n\nQuestion: ${q}\n\nProvide a thorough answer with specific references when possible.`;
-
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "qa", systemPrompt, userPrompt }),
+      const data = await callOpenAI({
+        mode: "qa",
+        systemPrompt: "You are an educational assistant helping instructors understand their discussion content. Answer questions accurately based on the provided context.",
+        userPrompt: `Based on this discussion context:\n\n${context}\n\nQuestion: ${q}\n\nProvide a thorough answer with specific references when possible.`,
       });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
       setChatHistory((h) => [
         { question: q, answer: data.result, ts: new Date().toLocaleTimeString() },
         ...h,
