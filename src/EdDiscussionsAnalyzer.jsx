@@ -954,27 +954,35 @@ function AnalyzerApp({ session, onLogout }) {
     setError("");
     setLoadingSummary(true);
     try {
-      const count = Math.floor(Math.random() * 30) + 10; // simulated thread count
-      setThreadCount(count);
-
       const systemPrompt =
         "You are an expert educational assistant helping instructors summarize Ed Discussion activity. Provide clear, professional summaries that highlight key insights and patterns.";
+      const userPrompt = `Please create a comprehensive summary of classroom discussion activity from ${startDate} to ${endDate}.
+  Include:
+  1. **Overview**: Brief summary of discussion activity level and engagement
+  2. **Key Topics**: Main themes and subjects discussed
+  3. **Student Questions**: Common questions or concerns raised
+  4. **Notable Discussions**: Particularly engaging or important conversations
+  5. **Participation Insights**: Observations about student participation patterns
+  Format professionally for an instructor to use directly.`;
 
-      const userPrompt = `Please create a comprehensive summary of classroom discussion activity from ${startDate} to ${endDate} for course ID ${session.courseId}.
-
-
-Include:
-1. **Overview**: Brief summary of discussion activity level and engagement
-2. **Key Topics**: Main themes and subjects discussed
-3. **Student Questions**: Common questions or concerns raised
-4. **Notable Discussions**: Particularly engaging or important conversations
-5. **Participation Insights**: Observations about student participation patterns
-
-Format professionally for an instructor to use directly.`;
-
-      const result = await callOpenAI(systemPrompt, userPrompt);
-      setSummary(result);
-      contextRef.current = result;
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "summary",
+          systemPrompt,
+          userPrompt,
+          edToken: session.edToken,
+          courseId: session.courseId,
+          startDate,
+          endDate,
+        }),
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      setSummary(data.result);
+      setThreadCount(data.threadCount);
+      contextRef.current = data.result;
     } catch (e) {
       setError("Error generating summary: " + e.message);
     } finally {
@@ -986,30 +994,38 @@ Format professionally for an instructor to use directly.`;
     setError("");
     setLoadingTone(true);
     try {
-      const count = threadCount ?? (Math.floor(Math.random() * 30) + 10);
-      if (!threadCount) setThreadCount(count);
-
       const systemPrompt =
         "You are an expert in educational psychology and communication analysis. Analyze discussion tone with sensitivity to student emotional states and classroom dynamics.";
+      const userPrompt = `Please analyze the tone and emotional climate of classroom discussions from ${startDate} to ${endDate}.
+  Include:
+  1. **Overall Tone**: General emotional climate
+  2. **Engagement Level**: How actively engaged students appear to be
+  3. **Emotional Indicators**: Specific emotions detected
+  4. **Communication Style**: Formal vs informal, collaborative vs individual
+  5. **Stress Indicators**: Signs of academic pressure or difficulty
+  6. **Support Dynamics**: How students help each other
+  7. **Red Flags**: Any concerning patterns needing attention
+  8. **Recommendations**: Suggestions for improving discussion climate
+  Provide actionable insights.`;
 
-      const userPrompt = `Please analyze the tone and emotional climate of classroom discussions from ${startDate} to ${endDate} for course ID ${session.courseId}.
-
-
-Include:
-1. **Overall Tone**: General emotional climate
-2. **Engagement Level**: How actively engaged students appear to be
-3. **Emotional Indicators**: Specific emotions detected
-4. **Communication Style**: Formal vs informal, collaborative vs individual
-5. **Stress Indicators**: Signs of academic pressure or difficulty
-6. **Support Dynamics**: How students help each other
-7. **Red Flags**: Any concerning patterns needing attention
-8. **Recommendations**: Suggestions for improving discussion climate
-
-Provide actionable insights.`;
-
-      const result = await callOpenAI(systemPrompt, userPrompt);
-      setToneAnalysis(result);
-      if (!contextRef.current) contextRef.current = result;
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "tone",
+          systemPrompt,
+          userPrompt,
+          edToken: session.edToken,
+          courseId: session.courseId,
+          startDate,
+          endDate,
+        }),
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      setToneAnalysis(data.result);
+      if (data.threadCount) setThreadCount(data.threadCount);
+      if (!contextRef.current) contextRef.current = data.result;
     } catch (e) {
       setError("Error analyzing tone: " + e.message);
     } finally {
@@ -1029,9 +1045,15 @@ Provide actionable insights.`;
         "You are an educational assistant helping instructors understand their discussion content. Answer questions accurately based on the provided context.";
       const userPrompt = `Based on this discussion context:\n\n${context}\n\nQuestion: ${q}\n\nProvide a thorough answer with specific references when possible.`;
 
-      const result = await callOpenAI(systemPrompt, userPrompt);
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "qa", systemPrompt, userPrompt }),
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
       setChatHistory((h) => [
-        { question: q, answer: result, ts: new Date().toLocaleTimeString() },
+        { question: q, answer: data.result, ts: new Date().toLocaleTimeString() },
         ...h,
       ]);
     } catch (e) {
